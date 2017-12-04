@@ -1,0 +1,58 @@
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+mainClassName = 'org.dcw.twitter.sanitise.TweetSanitiserCmdLine'
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '4.3'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+jar {
+    baseName = 'twitter-sanitise-tweets'
+    version =  '0.1'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.twitter4j:twitter4j-core:4.0.6'
+    compile 'com.beust:jcommander:1.72'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+    compile 'com.google.guava:guava:23.0'
+}
+
+def timestamp() {
+    def date = new Date()
+    return date.format('yyyyMMddHHmmss')
+}
+
+distributions {
+    main {
+        contents {
+            from { 'README.md' }
+            from { 'LICENSE' }
+            from { 'twitter.properties-template' }
+            from { 'proxy.properties-template' }
+        }
+    }
+    timestamped {
+        baseName = project.name + '-SNAPSHOT-' + timestamp()
+        contents {
+            with main.contents
+        }
+    }
+    privileged {
+        baseName = project.name + '_with-credentials-SNAPSHOT-' + timestamp()
+        contents {
+            with main.contents
+            // include own twitter credentials
+            from { 'twitter.properties' }
+        }
+    }
+}
